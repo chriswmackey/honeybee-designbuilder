@@ -37,3 +37,4 @@ def test_model_writer_from_standard_hbjson():
 
     xml_str = hb_model.to.dsbxml(hb_model)
     assert isinstance(xml_str, str)
+    print(xml_str)

@@ -1,6 +1,5 @@
 # coding=utf-8
-"""Methods to write Honeybee core objects to inp."""
-from __future__ import division
+"""Methods to write Honeybee core objects to DsbXML."""
 import datetime
 import xml.etree.ElementTree as ET
 
@@ -45,6 +44,22 @@ def model_to_dsbxml_element(model, simulation_par=None):
         '<dsbXML name="~{}" date="{}" version = "{}" objects = "all">\n' \
         '</dsbXML>\n'.format(model_name, datetime.date.today(), DESIGNBUILDER_VERSION)
     xml_root = ET.fromstring(base_template)
+
+    # add the site and the building
+    xml_site = ET.SubElement(xml_root, 'Site', handle=model.identifier, count='1')
+    xml_bldgs = ET.SubElement(xml_site, 'Attributes')
+    xml_bldgs = ET.SubElement(xml_site, 'Tables')
+    xml_bldgs = ET.SubElement(xml_site, 'AssemblyLibrary')
+    xml_bldgs = ET.SubElement(xml_site, 'Buildings', numberOfBuildings='1')
+    bldg_attr = {
+        'currentComponentBlockHandle': '-1',
+        'currentAssemblyInstanceHandle': '-1',
+        'currentPlaneHandle': '-1'
+    }
+    xml_bldg = ET.SubElement(xml_bldgs, 'Building', bldg_attr)
+    _object_ids(xml_bldg, '0', '-1')
+
+    # group the model rooms by contiguous story volume so they translate to blocks
 
     return xml_root
 
@@ -106,3 +121,19 @@ def model_to_dsbxml(model, simulation_par=None, program_name=None):
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n{}'.format(prog_comment)
     dsbxml_str = base_template + dsbxml_str
     return dsbxml_str
+
+
+def _object_ids(
+    parent, handle,
+    building='-1', block='-1', zone='-1', surface='-1', opening='-1'
+):
+    """Create a sub element for DesignBuilder ObjectIDs."""
+    bldg_id_attr = {
+        'handle': handle,
+        'buildingHandle': building,
+        'buildingBlockHandle': block,
+        'zoneHandle': zone,
+        'surfaceIndex': surface,
+        'openingIndex': opening
+    }
+    return ET.SubElement(parent, 'ObjectIDs', bldg_id_attr)
