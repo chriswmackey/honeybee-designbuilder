@@ -745,13 +745,6 @@ def room_group_to_dsbxml_block(
         else:
             face_adjs.append(None)
 
-    import json
-    geo_file = 'C:/Users/Chris/Desktop/block_geo.json'
-    print(block_handle)
-    if str(block_handle) == '4':
-        with open(geo_file, 'w') as gf:
-            json.dump(blk_room.geometry.to_dict(), gf)
-
     # create the body of the block using the polyhedral vertices
     xml_profile = ET.SubElement(
         xml_block, 'ProfileBody', elementSlope='0.0000', roofOverlap='0.0000')
