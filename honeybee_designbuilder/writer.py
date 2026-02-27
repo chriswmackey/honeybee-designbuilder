@@ -433,9 +433,11 @@ def room_to_dsbxml_element(
                 else:  # determine which of the faces corresponds to the merged one
                     prop_fs = []
                     for f in merge_faces:
-                        f_pt = f._point_on_face(tolerance)
+                        f_pt = f.geometry._point_on_face(tolerance)
                         if new_geo.is_point_on_face(f_pt, tolerance):
                             prop_fs.append(f)
+                if len(prop_fs) == 0:
+                    prop_fs = merge_faces
                 prop_f = prop_fs[0]
                 fbc = boundary_conditions.outdoors
                 nf = Face(prop_f.identifier, new_geo, prop_f.type, fbc)
@@ -742,6 +744,13 @@ def room_group_to_dsbxml_block(
             face_adjs.append(nf_adj)
         else:
             face_adjs.append(None)
+
+    import json
+    geo_file = 'C:/Users/Chris/Desktop/block_geo.json'
+    print(block_handle)
+    if str(block_handle) == '4':
+        with open(geo_file, 'w') as gf:
+            json.dump(blk_room.geometry.to_dict(), gf)
 
     # create the body of the block using the polyhedral vertices
     xml_profile = ET.SubElement(
